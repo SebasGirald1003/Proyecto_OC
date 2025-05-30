@@ -1,50 +1,17 @@
 class Nave {
     static Array bulletX, bulletY;
-    static int bulletCount;
-    static int maxBullets;
+    static int bulletCount, maxBullets;
 
-    function void run() {
-        var int x, y;
-        var char key;
-        var boolean exit;
-
-        let maxBullets = 5;
+    function void init() {
+        let maxBullets = 10;
         let bulletCount = 0;
         let bulletX = Array.new(maxBullets);
         let bulletY = Array.new(maxBullets);
-
-        let x = 100;
-        let y = 200;
-        let exit = false;
-
-        do Screen.clearScreen();
-        do Screen.setColor(true);
-
-        while (~exit) {
-            
-            do Nave.drawShip(x, y);
-            
-            let key = Keyboard.keyPressed();
-            
-            if (key = 130) { if (x > 0) { let x = x - 5; } }
-            
-            if (key = 132) { if (x < 490) { let x = x + 5; } }
-            
-            if (key = 32) { do Nave.fireBullet(x, y); }
-            
-           
-            if (key = 140) { let exit = true; }
-            
-           
-            do Nave.updateBullets();
-            
-            do Sys.wait(50);
-            do Screen.clearScreen();
-        }
         return;
     }
 
     function void drawShip(int x, int y) {
+        do Screen.setColor(true);
         do Screen.drawRectangle(x + 7, y, x + 13, y + 10);
         do Screen.drawRectangle(x, y + 4, x + 5, y + 10);
         do Screen.drawRectangle(x + 15, y + 4, x + 20, y + 10);
@@ -52,10 +19,10 @@ class Nave {
         return;
     }
 
-    function void fireBullet(int shipX, int shipY) {
+    function void fire(int x, int y) {
         if (bulletCount < maxBullets) {
-            let bulletX[bulletCount] = shipX + 10;
-            let bulletY[bulletCount] = shipY - 5;
+            let bulletX[bulletCount] = x;
+            let bulletY[bulletCount] = y - 30;
             let bulletCount = bulletCount + 1;
         }
         return;
@@ -64,18 +31,28 @@ class Nave {
     function void updateBullets() {
         var int i;
         let i = 0;
-        
+
         while (i < bulletCount) {
-          
-            let bulletY[i] = bulletY[i] - 8;
+            do Screen.setColor(false);
+            do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
             
-           
+            let bulletY[i] = bulletY[i] - 8;
+
             if (bulletY[i] > 0) {
-                do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
-                let i = i + 1;
-            }
-            else {
-               
+                do Alien.checkHit(bulletX[i], bulletY[i]);
+
+                if (Alien.wasHit()) {
+                    let bulletCount = bulletCount - 1;
+                    let bulletX[i] = bulletX[bulletCount];
+                    let bulletY[i] = bulletY[bulletCount];
+                    do Alien.resetHitFlag();
+                } else {
+                    // Draw bullet at new position
+                    do Screen.setColor(true);
+                    do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
+                    let i = i + 1;
+                }
+            } else {
                 let bulletCount = bulletCount - 1;
                 let bulletX[i] = bulletX[bulletCount];
                 let bulletY[i] = bulletY[bulletCount];

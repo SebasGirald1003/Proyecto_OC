@@ -1,0 +1,184 @@
+class Alien {
+    static Array x, y, dir, isDead, bulletX, bulletY;
+    static int size, count, maxBullets, bulletCount, shooterIndex;
+
+    function void init() {
+        let shooterIndex = 0;
+        let maxBullets = 1;
+        let bulletCount = 0;
+        let bulletX = Array.new(maxBullets);
+        let bulletY = Array.new(maxBullets);
+
+        let size = 16;  // Changed to 16 to match bitmap height
+        let count = 3;
+
+        let x = Array.new(count);
+        let y = Array.new(count);
+        let dir = Array.new(count);
+        let isDead = Array.new(count);
+
+        let x[0] = 50;
+        let y[0] = 30;
+        let dir[0] = 1;
+        let isDead[0] = 0;
+
+        let x[1] = 150;
+        let y[1] = 30;
+        let dir[1] = 1;
+        let isDead[1] = 0;
+
+        let x[2] = 250;
+        let y[2] = 30;
+        let dir[2] = 1;
+        let isDead[2] = 0;
+
+        return;
+    }
+
+    function void moveAll() {
+        var int i, memAddress;
+        let i = 0;
+
+        while (i < count) {
+            if (isDead[i] = 0) {
+                do Screen.setColor(false);
+                let memAddress = 16384 + (y[i] * 32) + (x[i] / 16);
+                do Memory.poke(memAddress + 0, 0);
+                do Memory.poke(memAddress + 32, 0);
+                do Memory.poke(memAddress + 64, 0);
+                do Memory.poke(memAddress + 96, 0);
+                do Memory.poke(memAddress + 128, 0);
+                do Memory.poke(memAddress + 160, 0);
+                do Memory.poke(memAddress + 192, 0);
+                do Memory.poke(memAddress + 224, 0);
+                do Memory.poke(memAddress + 256, 0);
+                do Memory.poke(memAddress + 288, 0);
+                do Memory.poke(memAddress + 320, 0);
+                do Memory.poke(memAddress + 352, 0);
+                do Memory.poke(memAddress + 384, 0);
+                do Memory.poke(memAddress + 416, 0);
+                do Memory.poke(memAddress + 448, 0);
+                do Memory.poke(memAddress + 480, 0);
+
+                if (dir[i] = 1) {
+                    let x[i] = x[i] + 5;
+                    if (x[i] + size > 490) {
+                        let dir[i] = 2;
+                        let y[i] = y[i] + 10;
+                    }
+                } else {
+                    let x[i] = x[i] - 5;
+                    if (x[i] < 6) {
+                        let dir[i] = 1;
+                        let y[i] = y[i] + 10;
+                    }
+                }
+
+                let memAddress = 16384 + (y[i] * 32) + (x[i] / 16);
+                do Memory.poke(memAddress + 0, 12300);
+                do Memory.poke(memAddress + 32, 12300);
+                do Memory.poke(memAddress + 64, 3120);
+                do Memory.poke(memAddress + 96, 3120);
+                do Memory.poke(memAddress + 128, 16380);
+                do Memory.poke(memAddress + 160, 13260);
+                do Memory.poke(memAddress + 192, 29646);
+                do Memory.poke(memAddress + 224, 32766);
+                do Memory.poke(memAddress + 256, 28662);
+                do Memory.poke(memAddress + 288, -2449);
+                do Memory.poke(memAddress + 320, -2449);
+                do Memory.poke(memAddress + 352, -3025);
+                do Memory.poke(memAddress + 384, -4081);
+                do Memory.poke(memAddress + 416, 24582);
+                do Memory.poke(memAddress + 448, 24582);
+                do Memory.poke(memAddress + 480, -28663);
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    function boolean wasHit() {
+        var boolean hitFlag;
+        return hitFlag;
+    }
+
+    function void resetHitFlag() {
+        var boolean hitFlag;
+        let hitFlag = false;
+        return;
+    }
+
+    function void fireBulletFromRandom() {
+        var int i;
+        let shooterIndex = shooterIndex + 1;
+        if (shooterIndex = count) {
+            let shooterIndex = 0;
+        }
+        return;
+    }
+
+    function void updateAlienBullets() {
+        var int i, shipWidth, shipHeight;
+        let i = 0;
+        let shipWidth = 20;
+        let shipHeight = 10;
+
+        while (i < bulletCount) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
+
+            let bulletY[i] = bulletY[i] + 6;
+
+            if (bulletY[i] < 245) {
+                if ((bulletY[i] > Main.getShipY()) & (bulletY[i] < (Main.getShipY() + shipHeight))) {
+                    if ((bulletX[i] > Main.getShipX()) & (bulletX[i] < (Main.getShipX() + shipWidth))) {
+                        do Main.loseLife();
+                        let bulletCount = bulletCount - 1;
+                        let bulletX[i] = bulletX[bulletCount];
+                        let bulletY[i] = bulletY[bulletCount];
+                        return;
+                    }
+                }
+                
+                do Screen.setColor(true);
+                do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
+                let i = i + 1;
+            } else {
+                let bulletCount = bulletCount - 1;
+                let bulletX[i] = bulletX[bulletCount];
+                let bulletY[i] = bulletY[bulletCount];
+            }
+        }
+
+        if (isDead[shooterIndex] = 0) {
+            if (bulletCount < maxBullets) {
+                let bulletX[bulletCount] = x[shooterIndex] + (size / 2);
+                let bulletY[bulletCount] = y[shooterIndex] + size;
+                let bulletCount = bulletCount + 1;
+            }
+        }
+        return;
+    }
+
+    function void checkHit(int bx, int by) {
+        var int i;
+        var boolean hitFlag;
+        let i = 0;
+        let hitFlag = false;
+
+        while ((i < count) & (~hitFlag)) {
+            if (isDead[i] = 0) {
+                if ((bx > x[i]) & (bx < (x[i] + size)) & 
+                    (by > y[i]) & (by < (y[i] + size))) {
+                    let isDead[i] = 1;
+                    let hitFlag = true;
+                    do Screen.setColor(false);
+                    do Screen.drawRectangle(x[i], y[i], x[i] + size, y[i] + size);
+                    return;
+                }
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+}
