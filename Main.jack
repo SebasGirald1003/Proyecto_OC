@@ -28,7 +28,7 @@ class Main {
                 }
             }
             if (key = 132) {
-                if (shipX < 495) {
+                if (shipX < 490) {
                     let shipX = shipX + 5;
                 }
             }
