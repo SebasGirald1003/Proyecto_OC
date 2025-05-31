@@ -1,49 +1,57 @@
 class Main {
-    static int shipX, shipY, lives;
+    // Variables globales del juego
+    static int shipX, shipY, lives;  // Posición de la nave y vidas
     
     function void main() {
-        var boolean exit;
-        var char key;
+        var boolean exit;  // Control de salida del juego
+        var char key;      // Tecla presionada
 
+        // Inicialización del juego
         let exit = false;
-        let shipX = 250;
-        let shipY = 220;
-        let lives = 3;
+        let shipX = 250;  // Posición X inicial
+        let shipY = 220;  // Posición Y inicial
+        let lives = 3;    // Vidas iniciales
 
         do Screen.clearScreen();
-        do Alien.init();
-        do Nave.init();
+        do Alien.init();  // Inicializar aliens
+        do Nave.init();   // Inicializar nave
 
+        // Bucle principal del juego
         while (~exit) {
+            // Mostrar contador de vidas
             do Output.moveCursor(0,0);
             do Output.printString("LIVES: ");
             do Output.printInt(lives);
 
+            // Dibujar nave
             do Nave.drawShip(shipX, shipY);
 
+            // Manejo de entrada
             let key = Keyboard.keyPressed();
-            if (key = 130) {
+            if (key = 130) {  // Tecla izquierda
                 if (shipX > 6) {
                     let shipX = shipX - 5;
                 }
             }
-            if (key = 132) {
+            if (key = 132) {  // Tecla derecha
                 if (shipX < 490) {
                     let shipX = shipX + 5;
                 }
             }
-            if (key = 32) {
+            if (key = 32) {   // Barra espaciadora (disparar)
                 do Nave.fire(shipX + 10, shipY);
             }
-            if (key = 140) {
+            if (key = 140) {  // Tecla ESC (salir)
                 let exit = true;
             }
 
-            do Alien.moveAll();
-            do Nave.updateBullets();
-            do Alien.fireBulletFromRandom();
-            do Alien.updateAlienBullets();
+            // Actualizar elementos del juego
+            do Alien.moveAll();            // Mover aliens
+            do Nave.updateBullets();       // Actualizar balas jugador
+            do Alien.fireBulletFromRandom();  // Disparar balas alien
+            do Alien.updateAlienBullets();   // Actualizar balas alien
 
+            // Verificar fin del juego
             if (lives < 1) {
                 do Screen.clearScreen();
                 do Output.moveCursor(10,27);
@@ -52,20 +60,18 @@ class Main {
                 do Sys.halt();
             }
 
-            do Sys.wait(50);
-            do Screen.clearScreen();
+            // Control de velocidad y refresco
+            do Sys.wait(50);          // Esperar 50ms
+            do Screen.clearScreen();   // Limpiar pantalla
         }
         return;
     }
 
-    function int getShipX() {
-        return shipX;
-    }
+    // Métodos de acceso para la posición de la nave
+    function int getShipX() { return shipX; }
+    function int getShipY() { return shipY; }
 
-    function int getShipY() {
-        return shipY;
-    }
-
+    // Método para perder vida
     function void loseLife() {
         let lives = lives - 1;
         return;

@@ -1,29 +1,36 @@
 class Nave {
-    static Array bulletX, bulletY;
-    static int bulletCount, maxBullets;
+    // Variables para gestionar las balas del jugador
+    static Array bulletX, bulletY;  // Posiciones de balas
+    static int bulletCount, maxBullets;  // Control de balas
 
     function void init() {
-        let maxBullets = 10;
-        let bulletCount = 0;
-        let bulletX = Array.new(maxBullets);
-        let bulletY = Array.new(maxBullets);
+        // Inicializar sistema de balas
+        let maxBullets = 10;  // Máximo de balas simultáneas
+        let bulletCount = 0;   // Contador actual
+        let bulletX = Array.new(maxBullets);  // Array posiciones X
+        let bulletY = Array.new(maxBullets);  // Array posiciones Y
         return;
     }
 
     function void drawShip(int x, int y) {
+        // Dibujar nave con forma triangular usando rectángulos
         do Screen.setColor(true);
+        // Parte central
         do Screen.drawRectangle(x + 7, y, x + 13, y + 10);
+        // Alas laterales
         do Screen.drawRectangle(x, y + 4, x + 5, y + 10);
         do Screen.drawRectangle(x + 15, y + 4, x + 20, y + 10);
+        // Cañón superior
         do Screen.drawRectangle(x + 10, y - 5, x + 10, y);
         return;
     }
 
     function void fire(int x, int y) {
+        // Disparar nueva bala si hay capacidad
         if (bulletCount < maxBullets) {
-            let bulletX[bulletCount] = x;
-            let bulletY[bulletCount] = y - 30;
-            let bulletCount = bulletCount + 1;
+            let bulletX[bulletCount] = x;          // Posición X inicial
+            let bulletY[bulletCount] = y - 30;     // Posición Y inicial (arriba de la nave)
+            let bulletCount = bulletCount + 1;      // Incrementar contador
         }
         return;
     }
@@ -33,26 +40,31 @@ class Nave {
         let i = 0;
 
         while (i < bulletCount) {
+            // Borrar bala en posición actual
             do Screen.setColor(false);
             do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
             
+            // Mover bala hacia arriba
             let bulletY[i] = bulletY[i] - 8;
 
-            if (bulletY[i] > 0) {
+            if (bulletY[i] > 0) {  // Si la bala sigue en pantalla
+                // Verificar colisión con aliens
                 do Alien.checkHit(bulletX[i], bulletY[i]);
 
                 if (Alien.wasHit()) {
+                    // Eliminar bala si hubo colisión
                     let bulletCount = bulletCount - 1;
                     let bulletX[i] = bulletX[bulletCount];
                     let bulletY[i] = bulletY[bulletCount];
                     do Alien.resetHitFlag();
                 } else {
-                    // Draw bullet at new position
+                    // Dibujar bala en nueva posición
                     do Screen.setColor(true);
                     do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
                     let i = i + 1;
                 }
             } else {
+                // Eliminar bala que salió de pantalla
                 let bulletCount = bulletCount - 1;
                 let bulletX[i] = bulletX[bulletCount];
                 let bulletY[i] = bulletY[bulletCount];

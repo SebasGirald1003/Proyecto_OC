@@ -1,22 +1,26 @@
 class Alien {
+    // Declaración de variables estáticas compartidas por todos los objetos Alien
     static Array x, y, dir, isDead, bulletX, bulletY;
     static int size, count, maxBullets, bulletCount, shooterIndex;
 
+    // Inicializa los valores y arreglos de los alienígenas
     function void init() {
-        let shooterIndex = 0;
-        let maxBullets = 1;
-        let bulletCount = 0;
-        let bulletX = Array.new(maxBullets);
-        let bulletY = Array.new(maxBullets);
+        let shooterIndex = 0; // Índice del alien que disparará
+        let maxBullets = 1; // Máximo número de balas activas al mismo tiempo
+        let bulletCount = 0; // Número actual de balas activas
+        let bulletX = Array.new(maxBullets); // Arreglo para las coordenadas X de las balas
+        let bulletY = Array.new(maxBullets); // Arreglo para las coordenadas Y de las balas
 
-        let size = 16;  // Changed to 16 to match bitmap height
-        let count = 3;
+        let size = 16;  // Tamaño de cada alien
+        let count = 3;  // Número de aliens
 
+        // Inicializa arreglos para posición, dirección y estado de cada alien
         let x = Array.new(count);
         let y = Array.new(count);
         let dir = Array.new(count);
         let isDead = Array.new(count);
 
+        // Posición inicial, dirección y estado vivo (0 = vivo, 1 = muerto) de los tres aliens
         let x[0] = 50;
         let y[0] = 30;
         let dir[0] = 1;
@@ -35,14 +39,17 @@ class Alien {
         return;
     }
 
+    // Mueve todos los aliens en pantalla
     function void moveAll() {
         var int i, memAddress;
         let i = 0;
 
         while (i < count) {
-            if (isDead[i] = 0) {
+            if (isDead[i] = 0) { // Solo mover si el alien está vivo
+                // Borra la imagen del alien anterior
                 do Screen.setColor(false);
                 let memAddress = 16384 + (y[i] * 32) + (x[i] / 16);
+                // Limpia el sprite del alien (16 líneas de memoria de video)
                 do Memory.poke(memAddress + 0, 0);
                 do Memory.poke(memAddress + 32, 0);
                 do Memory.poke(memAddress + 64, 0);
@@ -60,20 +67,22 @@ class Alien {
                 do Memory.poke(memAddress + 448, 0);
                 do Memory.poke(memAddress + 480, 0);
 
+                // Movimiento horizontal del alien y cambio de dirección si alcanza los bordes
                 if (dir[i] = 1) {
                     let x[i] = x[i] + 5;
                     if (x[i] + size > 490) {
-                        let dir[i] = 2;
-                        let y[i] = y[i] + 10;
+                        let dir[i] = 2; // Cambia de dirección hacia la izquierda
+                        let y[i] = y[i] + 10; // Baja una línea
                     }
                 } else {
                     let x[i] = x[i] - 5;
                     if (x[i] < 6) {
-                        let dir[i] = 1;
+                        let dir[i] = 1; // Cambia de dirección hacia la derecha
                         let y[i] = y[i] + 10;
                     }
                 }
 
+                // Dibuja el nuevo sprite del alien (16 líneas con patrones)
                 let memAddress = 16384 + (y[i] * 32) + (x[i] / 16);
                 do Memory.poke(memAddress + 0, 12300);
                 do Memory.poke(memAddress + 32, 12300);
@@ -97,17 +106,20 @@ class Alien {
         return;
     }
 
+    // Indica si un alien fue golpeado
     function boolean wasHit() {
         var boolean hitFlag;
         return hitFlag;
     }
 
+    // Reinicia el indicador de impacto
     function void resetHitFlag() {
         var boolean hitFlag;
         let hitFlag = false;
         return;
     }
 
+    // Lógica para seleccionar aleatoriamente al alien que dispara
     function void fireBulletFromRandom() {
         var int i;
         let shooterIndex = shooterIndex + 1;
@@ -117,6 +129,7 @@ class Alien {
         return;
     }
 
+    // Actualiza la posición de las balas disparadas por los aliens
     function void updateAlienBullets() {
         var int i, shipWidth, shipHeight;
         let i = 0;
@@ -124,32 +137,39 @@ class Alien {
         let shipHeight = 10;
 
         while (i < bulletCount) {
+            // Borra la bala anterior
             do Screen.setColor(false);
             do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
 
+            // Mueve la bala hacia abajo
             let bulletY[i] = bulletY[i] + 6;
 
+            // Si la bala aún está en pantalla
             if (bulletY[i] < 245) {
+                // Verifica si colisiona con la nave del jugador
                 if ((bulletY[i] > Main.getShipY()) & (bulletY[i] < (Main.getShipY() + shipHeight))) {
                     if ((bulletX[i] > Main.getShipX()) & (bulletX[i] < (Main.getShipX() + shipWidth))) {
-                        do Main.loseLife();
+                        do Main.loseLife(); // Pierde vida
+                        // Elimina la bala reemplazándola con la última
                         let bulletCount = bulletCount - 1;
                         let bulletX[i] = bulletX[bulletCount];
                         let bulletY[i] = bulletY[bulletCount];
                         return;
                     }
                 }
-                
+                // Dibuja la nueva bala
                 do Screen.setColor(true);
                 do Screen.drawRectangle(bulletX[i], bulletY[i], bulletX[i], bulletY[i] + 2);
                 let i = i + 1;
             } else {
+                // Si sale de la pantalla, eliminarla
                 let bulletCount = bulletCount - 1;
                 let bulletX[i] = bulletX[bulletCount];
                 let bulletY[i] = bulletY[bulletCount];
             }
         }
 
+        // Si el alien no está muerto y puede disparar, crea una nueva bala
         if (isDead[shooterIndex] = 0) {
             if (bulletCount < maxBullets) {
                 let bulletX[bulletCount] = x[shooterIndex] + (size / 2);
@@ -160,6 +180,7 @@ class Alien {
         return;
     }
 
+    // Verifica si alguna bala del jugador golpea a un alien
     function void checkHit(int bx, int by) {
         var int i;
         var boolean hitFlag;
@@ -168,10 +189,12 @@ class Alien {
 
         while ((i < count) & (~hitFlag)) {
             if (isDead[i] = 0) {
+                // Comprueba si la posición (bx, by) está dentro del área del alien
                 if ((bx > x[i]) & (bx < (x[i] + size)) & 
                     (by > y[i]) & (by < (y[i] + size))) {
                     let isDead[i] = 1;
                     let hitFlag = true;
+                    // Borra al alien de la pantalla
                     do Screen.setColor(false);
                     do Screen.drawRectangle(x[i], y[i], x[i] + size, y[i] + size);
                     return;
